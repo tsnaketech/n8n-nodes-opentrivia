@@ -1,0 +1,34 @@
+# Source (only dist/ is published)
+nodes/
+icons/
+tsconfig.json
+tsconfig.tsbuildinfo
+
+# Dependencies
+node_modules
+package-lock.json
+
+# Claude Code
+.claude
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment
+.env
+.env.local
+
+# OS
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
+
+# npm pack / publish
+*.tgz
+
+# ESLint
+.eslintcache
