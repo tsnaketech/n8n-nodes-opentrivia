@@ -1,0 +1,49 @@
+{
+	"name": "n8n-nodes-opentrivia",
+	"version": "0.1.0",
+	"description": "n8n community node for the Open Trivia Database (opentdb.com) — fetch trivia questions, categories and session tokens in your n8n workflows.",
+	"keywords": [
+		"n8n-community-node-package",
+		"trivia",
+		"opentdb",
+		"quiz",
+		"opentrivia"
+	],
+	"license": "MIT",
+	"main": "index.js",
+	"author": {
+		"name": ""
+	},
+	"homepage": "https://github.com/tsnaketech/n8n-nodes-opentrivia",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/tsnaketech/n8n-nodes-opentrivia.git"
+	},
+	"engines": {
+		"node": ">=22.0.0"
+	},
+	"scripts": {
+		"build": "tsc && mkdir -p dist/icons && cp icons/* dist/icons/",
+		"build:watch": "tsc --watch",
+		"lint": "eslint nodes --ext .ts",
+		"lint:fix": "eslint nodes --ext .ts --fix",
+		"prepublishOnly": "npm run build"
+	},
+	"files": [
+		"dist"
+	],
+	"n8n": {
+		"n8nNodesApiVersion": 1,
+		"credentials": [],
+		"nodes": [
+			"dist/nodes/OpenTrivia/OpenTrivia.node.js"
+		]
+	},
+	"devDependencies": {
+		"@types/node": "^22.0.0",
+		"typescript": "5.9.3"
+	},
+	"peerDependencies": {
+		"n8n-workflow": "*"
+	}
+}
