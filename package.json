@@ -17,7 +17,7 @@
 	"homepage": "https://github.com/tsnaketech/n8n-nodes-opentrivia",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/tsnaketech/n8n-nodes-opentrivia.git"
+		"url": "git+https://github.com/tsnaketech/n8n-nodes-opentrivia.git"
 	},
 	"engines": {
 		"node": ">=22.0.0"
