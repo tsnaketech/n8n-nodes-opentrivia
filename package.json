@@ -12,7 +12,7 @@
 	"license": "MIT",
 	"main": "index.js",
 	"author": {
-		"name": ""
+		"name": "tsnaketech"
 	},
 	"homepage": "https://github.com/tsnaketech/n8n-nodes-opentrivia",
 	"repository": {
@@ -44,6 +44,6 @@
 		"typescript": "5.9.3"
 	},
 	"peerDependencies": {
-		"n8n-workflow": "*"
+		"n8n-workflow": ">=2"
 	}
 }
