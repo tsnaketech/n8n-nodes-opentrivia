@@ -1,0 +1,80 @@
+# Publishes this n8n community node package to npm on every version tag push.
+#
+# Starting May 1 2026, n8n requires all community nodes to be published via
+# GitHub Actions with npm provenance statements. This workflow satisfies that
+# requirement. Provenance lets anyone cryptographically verify that a package
+# was built by this exact workflow, from this exact repository and commit.
+#
+# ─── AUTHENTICATION ────────────────────────────────────────────────────────────
+#
+# Uses npm Trusted Publishing (OIDC): no NPM_TOKEN secret involved. The trusted
+# publisher is declared on npmjs.com → package settings → Trusted Publishers →
+# GitHub Actions, with this repository and "publish.yml" as the workflow name.
+# `actions/setup-node`'s `registry-url` plus `permissions.id-token: write` below
+# are what let `npm publish` exchange GitHub's OIDC token for a short-lived npm
+# credential — provenance is generated automatically, no `--provenance` flag
+# needed. Requires npm ≥ 11.5.1, hence `npm install -g npm@latest`.
+#
+# ─── TAG CONVENTION ────────────────────────────────────────────────────────────
+#
+# This workflow triggers on tags matching "*.*.*" (e.g. 0.2.0).
+# If you prefer tags with a "v" prefix (e.g. v0.2.0), change the filter to:
+#   tags: ['v*.*.*']
+#
+# ─── RELEASE PROCESS ───────────────────────────────────────────────────────────
+#
+# Run the following command locally to start an interactive release:
+#
+#   npm run release
+#
+# This will prompt for a version bump, update the changelog, commit, tag, and
+# push — which triggers this workflow to lint, build and publish to npm.
+
+name: Publish
+
+on:
+  push:
+    tags:
+      # Matches 0.1.0, 1.2.3, 2.0.0-rc.1, etc.
+      # See "TAG CONVENTION" above if you prefer tags with a "v" prefix.
+      - '*.*.*'
+  # Manual fallback: GitHub occasionally drops the push event when a tag is deleted and
+  # recreated with the same name in quick succession. This job publishes whatever version
+  # is in package.json regardless of which ref triggered the run, and provenance attests
+  # the repository and commit — not the tag — so this is safe to use from the Actions tab
+  # if a tag push silently fails to fire the workflow above.
+  workflow_dispatch:
+
+permissions:
+  # Required to mint an OIDC token for npm Trusted Publishing and provenance attestation.
+  id-token: write
+  # Scoped down from the default (write) for least-privilege publishing.
+  contents: read
+
+jobs:
+  publish:
+    name: Publish to npm
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+
+      # Trusted Publishing requires npm >= 11.5.1; Node 22's bundled npm isn't
+      # guaranteed to meet that yet.
+      - name: Update npm
+        run: npm install -g npm@latest
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run CI checks
+        run: npm run ci
+
+      - name: Publish
+        run: npm publish
