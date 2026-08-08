@@ -7,7 +7,7 @@ import type {
 	INodeType,
 	INodeTypeDescription,
 } from 'n8n-workflow';
-import { NodeApiError, NodeOperationError } from 'n8n-workflow';
+import { NodeApiError, NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -78,14 +78,18 @@ export class OpenTrivia implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'Open Trivia',
 		name: 'openTrivia',
-		icon: { light: 'file:../../icons/opentrivia.svg', dark: 'file:../../icons/opentrivia.dark.svg' },
+		icon: {
+			light: 'file:../../icons/opentrivia.svg',
+			dark: 'file:../../icons/opentrivia.dark.svg',
+		},
 		group: ['transform'],
 		version: 1,
 		subtitle: '={{$parameter["operation"] + " · " + $parameter["resource"]}}',
-		description: 'Fetch trivia questions, categories and session tokens from the Open Trivia Database (opentdb.com)',
+		description:
+			'Fetch trivia questions, categories and session tokens from the Open Trivia Database (opentdb.com)',
 		defaults: { name: 'Open Trivia' },
-		inputs: ['main'],
-		outputs: ['main'],
+		inputs: [NodeConnectionTypes.Main],
+		outputs: [NodeConnectionTypes.Main],
 		credentials: [],
 		properties: [
 			// ── Resource ───────────────────────────────────────────────────────────
@@ -131,13 +135,14 @@ export class OpenTrivia implements INodeType {
 				description: 'Number of questions to fetch (max 50 per Open Trivia DB)',
 			},
 			{
-				displayName: 'Category',
+				displayName: 'Category Name or ID',
 				name: 'category',
 				type: 'options',
 				typeOptions: { loadOptionsMethod: 'getCategories' },
 				default: 0,
 				displayOptions: { show: { resource: ['question'], operation: ['getMany'] } },
-				description: 'Trivia category to pull questions from',
+				description:
+					'Trivia category to pull questions from. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
 			},
 			{
 				displayName: 'Difficulty',
@@ -168,6 +173,7 @@ export class OpenTrivia implements INodeType {
 				displayName: 'Session Token',
 				name: 'sessionToken',
 				type: 'string',
+				typeOptions: { password: true },
 				default: '',
 				displayOptions: { show: { resource: ['question'], operation: ['getMany'] } },
 				description:
@@ -206,13 +212,14 @@ export class OpenTrivia implements INodeType {
 				default: 'getMany',
 			},
 			{
-				displayName: 'Category',
+				displayName: 'Category Name or ID',
 				name: 'category',
 				type: 'options',
 				typeOptions: { loadOptionsMethod: 'getCategoriesNoAny' },
 				default: 9,
 				displayOptions: { show: { resource: ['category'], operation: ['getCount'] } },
-				description: 'Trivia category to get the question count for',
+				description:
+					'Trivia category to get the question count for. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
 			},
 
 			// ══════════════════════════════════════════════════════════════════════
@@ -244,12 +251,14 @@ export class OpenTrivia implements INodeType {
 				displayName: 'Token',
 				name: 'token',
 				type: 'string',
+				typeOptions: { password: true },
 				default: '',
 				required: true,
 				displayOptions: { show: { resource: ['sessionToken'], operation: ['reset'] } },
 				description: 'The session token to reset',
 			},
 		],
+		usableAsTool: true,
 	};
 
 	methods = {
@@ -363,7 +372,11 @@ export class OpenTrivia implements INodeType {
 					});
 					continue;
 				}
-				throw error;
+				throw new NodeOperationError(
+					this.getNode(),
+					error instanceof Error ? error : String(error),
+					{ itemIndex: i },
+				);
 			}
 		}
 
